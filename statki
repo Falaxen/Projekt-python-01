@@ -1,0 +1,100 @@
+import random
+#Dawid Szczędor i Klaudiusz Szymczyk
+# Inicjalizacja plansz
+player_board = [[0, 0, 0, 0, 0] for _ in range(5)]
+bot_board = [[0, 0, 0, 0, 0] for _ in range(5)]
+
+# Funkcja do wyświetlania plansz
+def display_boards():
+    print("Plansza gracza:")
+    print("  0 1 2 3 4")
+    for i in range(5):
+        print(f"{i} {' '.join(str(cell) for cell in player_board[i])}")
+    print("\nPlansza bota:")
+    print("  0 1 2 3 4")
+    for i in range(5):
+        print(f"{i} {' '.join(str(cell) for cell in bot_board[i])}")
+
+# Funkcja do ustawiania statków przez gracza
+def place_ships():
+    ships_placed = 0
+    while ships_placed < 3:
+        print(f"Ustawianie statku {ships_placed + 1}")
+        row = int(input("Podaj numer wiersza (0-4): "))
+        col = int(input("Podaj numer kolumny (0-2): "))
+
+        # Sprawdzenie poprawności ustawienia statku
+        if row < 0 or row > 4 or col < 0 or col > 2:
+            print("Niepoprawne współrzędne. Spróbuj ponownie.")
+            continue
+        if player_board[row][col] != 0 or player_board[row][col + 1] != 0 or player_board[row][col + 2] != 0:
+            print("Statek nie może być ustawiony tutaj. Spróbuj ponownie.")
+            continue
+
+        # Ustawienie statku
+        player_board[row][col] = 1
+        player_board[row][col + 1] = 1
+        player_board[row][col + 2] = 1
+        ships_placed += 1
+        display_boards()
+
+# Funkcja do losowego ustawienia statków przez bota
+def place_bot_ships():
+    ships_placed = 0
+    while ships_placed < 3:
+        row = random.randint(0, 4)
+        col = random.randint(0, 2)
+
+        # Sprawdzenie poprawności ustawienia statku
+        if bot_board[row][col] != 0 or bot_board[row][col + 1] != 0 or bot_board[row][col + 2] != 0:
+            continue
+
+        # Ustawienie statku
+        bot_board[row][col] = 1
+        bot_board[row][col + 1] = 1
+        bot_board[row][col + 2] = 1
+        ships_placed += 1
+
+# Funkcja do strzelania
+def shoot(row, col, board):
+    if board[row][col] == 1:
+        board[row][col] = 'X'
+        print("TRAFIONY!")
+    elif board[row][col] == 'X' or board[row][col] == 'O':
+        print("Już strzelałeś w to miejsce.")
+    else:
+        board[row][col] = 'O'
+        print("PUDŁO!")
+
+# Główna pętla gry
+def play_game():
+    print("Witaj w grze w statki!")
+    display_boards()
+    place_ships()
+    place_bot_ships()
+    game_over = False
+
+    while not game_over:
+        print("\nTwoja kolej:")
+        row = int(input("Podaj numer wiersza (0-4): "))
+        col = int(input("Podaj numer kolumny (0-4): "))
+        shoot(row, col, bot_board)
+        display_boards()
+
+        # Sprawdzenie, czy gracz wygrał
+        if all(all(cell != 1 for cell in row) for row in bot_board):
+            print("Gratulacje! Wygrałeś!")
+            break
+
+        print("\nKolej bota:")
+        bot_row = random.randint(0, 4)
+        bot_col = random.randint(0, 4)
+        shoot(bot_row, bot_col, player_board)
+        display_boards()
+
+        # Sprawdzenie, czy bot wygrał
+        if all(all(cell != 1 for cell in row) for row in player_board):
+            print("Przegrałeś! Bot wygrał.")
+            break
+
+play_game()

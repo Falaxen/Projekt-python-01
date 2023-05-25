@@ -1,21 +1,28 @@
 import random
+import os
 #Dawid Szczędor i Klaudiusz Szymczyk
-# Inicjalizacja plansz
+#tworzenie tablic
 player_board = [[0, 0, 0, 0, 0] for _ in range(5)]
 bot_board = [[0, 0, 0, 0, 0] for _ in range(5)]
 
-# Funkcja do wyświetlania plansz
-def display_boards():
+#funkcja do wyświetlania planszy
+def display_boards(show_bot_ships=False):
     print("Plansza gracza:")
-    print("  0 1 2 3 4")
+    print("   0 1 2 3 4")
+    print("   _________")
     for i in range(5):
-        print(f"{i} {' '.join(str(cell) for cell in player_board[i])}")
+        print(f"{i}| {' '.join(str(cell) for cell in player_board[i])}")
     print("\nPlansza bota:")
-    print("  0 1 2 3 4")
+    print("   0 1 2 3 4")
+    print("   _________")
     for i in range(5):
-        print(f"{i} {' '.join(str(cell) for cell in bot_board[i])}")
+        row = bot_board[i].copy()
+        if not show_bot_ships:
+            #żeby nie wyświetlało statków bota na planszy w trakcie gry
+            row = [0 if cell == 1 else cell for cell in row]
+        print(f"{i}| {' '.join(str(cell) for cell in row)}")
 
-# Funkcja do ustawiania statków przez gracza
+#funkcja do stawiania statków
 def place_ships():
     ships_placed = 0
     while ships_placed < 3:
@@ -23,7 +30,7 @@ def place_ships():
         row = int(input("Podaj numer wiersza (0-4): "))
         col = int(input("Podaj numer kolumny (0-2): "))
 
-        # Sprawdzenie poprawności ustawienia statku
+        #sprawdzanie czy można tu postawić statek
         if row < 0 or row > 4 or col < 0 or col > 2:
             print("Niepoprawne współrzędne. Spróbuj ponownie.")
             continue
@@ -31,31 +38,31 @@ def place_ships():
             print("Statek nie może być ustawiony tutaj. Spróbuj ponownie.")
             continue
 
-        # Ustawienie statku
+        #licznik statków i ich ustawienia
         player_board[row][col] = 1
         player_board[row][col + 1] = 1
         player_board[row][col + 2] = 1
         ships_placed += 1
         display_boards()
 
-# Funkcja do losowego ustawienia statków przez bota
+#stawianie statków przez bota
 def place_bot_ships():
     ships_placed = 0
     while ships_placed < 3:
         row = random.randint(0, 4)
         col = random.randint(0, 2)
 
-        # Sprawdzenie poprawności ustawienia statku
+        #sprawdzanie czy można tu postawić statek v2
         if bot_board[row][col] != 0 or bot_board[row][col + 1] != 0 or bot_board[row][col + 2] != 0:
             continue
 
-        # Ustawienie statku
+        #licznik statków bota i ich ustawienia
         bot_board[row][col] = 1
         bot_board[row][col + 1] = 1
         bot_board[row][col + 2] = 1
         ships_placed += 1
 
-# Funkcja do strzelania
+#no strzelaj no strzelaj do polaka
 def shoot(row, col, board):
     if board[row][col] == 1:
         board[row][col] = 'X'
@@ -66,7 +73,7 @@ def shoot(row, col, board):
         board[row][col] = 'O'
         print("PUDŁO!")
 
-# Główna pętla gry
+#główna funkcja gierki
 def play_game():
     print("Witaj w grze w statki!")
     display_boards()
@@ -78,19 +85,28 @@ def play_game():
         print("\nTwoja kolej:")
         row = int(input("Podaj numer wiersza (0-4): "))
         col = int(input("Podaj numer kolumny (0-4): "))
+        while row < 0 or row > 4 or col < 0 or col > 4:
+            print("\nPodałeś nieprawidłowe koordynaty!!!")
+            row = int(input("Podaj numer wiersza (0-4): "))
+            col = int(input("Podaj numer kolumny (0-4): "))
         shoot(row, col, bot_board)
         display_boards()
 
-        # Sprawdzenie, czy gracz wygrał
+        #sprawdzanie czy gracz wygrał
         if all(all(cell != 1 for cell in row) for row in bot_board):
             print("Gratulacje! Wygrałeś!")
+            input("super")
             break
 
         print("\nKolej bota:")
         bot_row = random.randint(0, 4)
         bot_col = random.randint(0, 4)
+        while player_board[bot_row][bot_col] == 'X' or player_board[bot_row][bot_col] == 'O':
+            bot_row = random.randint(0, 4)
+            bot_col = random.randint(0, 4)
         shoot(bot_row, bot_col, player_board)
-        display_boards()
+        os.system("cls")
+        display_boards(show_bot_ships=False)
 
         # Sprawdzenie, czy bot wygrał
         if all(all(cell != 1 for cell in row) for row in player_board):

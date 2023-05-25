@@ -1,6 +1,6 @@
 import random
 import os
-
+#Dawid Szczędor i Klaudiusz Szymczyk
 #tworzenie tablic
 player_board = [[0, 0, 0, 0, 0] for _ in range(5)]
 bot_board = [[0, 0, 0, 0, 0] for _ in range(5)]
